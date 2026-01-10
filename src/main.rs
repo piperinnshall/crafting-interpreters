@@ -1,3 +1,4 @@
+use std::io::{self, Write};
 use std::env; 
 use std::process;
 use std::fs;
@@ -15,7 +16,7 @@ fn main() {
             Ok(_) => process::exit(0),
             Err(err) => print_err(err)
         } ,
-        _ => println!(),
+        _ => run_prompt(),
     };
 }
 
@@ -26,6 +27,25 @@ fn print_err(err: Box<dyn Error>) {
 
 fn run_file(path: &str) -> Result<(), Box<dyn Error>> {
     let input: String = fs::read_to_string(path)?;
-    println!("{}", input);
+    print!("{}", input);
     Ok(())
 }
+
+fn run_prompt() {
+    loop {
+        print!("> ");
+        io::stdout().flush().unwrap();
+
+        let mut stdin = String::new();
+
+        let bytes_read = io::stdin()
+            .read_line(&mut stdin)
+            .expect("Failed to read line");
+
+        if bytes_read == 0 {
+            break;
+        }
+    }
+}
+
+

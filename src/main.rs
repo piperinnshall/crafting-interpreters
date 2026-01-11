@@ -1,8 +1,13 @@
-use std::io::{self, Write};
-use std::env; 
-use std::process;
-use std::fs;
-use std::error::Error;
+mod scanner;
+
+use scanner::Scanner;
+use std::{
+    env,
+    error::Error,
+    fs,
+    io::{self, Write},
+    process,
+};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -12,26 +17,14 @@ fn main() {
             eprintln!("Usage: jx [script]");
             process::exit(64);
         }
-        2 => if let Err(e) = run(&args[1]) {
-            eprintln!("Application error: {e}");
-            process::exit(1); 
+        2 => {
+            if let Err(e) = run_file(&args[1]) {
+                eprintln!("Application error: {}", e);
+                process::exit(1);
+            }
         }
         _ => run_prompt(),
     };
-}
-
-fn error(line: i32, msg: &str) {
-    
-}
-
-fn report(line: i32, at: &str, msg: &str) {
-    
-}
-
-fn run(path: &str) -> Result<(), Box<dyn Error>> {
-    let input: String = fs::read_to_string(path)?;
-    print!("{}", input);
-    Ok(())
 }
 
 fn run_prompt() {
@@ -48,7 +41,27 @@ fn run_prompt() {
         if bytes_read == 0 {
             break;
         }
+
+        run(&stdin);
     }
 }
 
+fn run_file(path: &str) -> Result<(), Box<dyn Error>> {
+    let input: String = fs::read_to_string(path)?;
+    run(&input);
+    Ok(())
+}
 
+fn run(source: &str) {
+    let scanner = Scanner::new(source);
+    let tokens = scanner.as_vec();
+    tokens.iter().for_each(|t| println!("{t}"));
+}
+
+fn error(line: i32, msg: &str) {
+    report(line, "", msg);
+}
+
+fn report(line: i32, at: &str, msg: &str) {
+    eprintln!("[line {}] Error{}: {}", line, at, msg);
+}

@@ -9,23 +9,26 @@ fn main() {
 
     match args.len() {
         len if len > 2 => {
-            println!("Usage: jx [script]");
+            eprintln!("Usage: jx [script]");
             process::exit(64);
         }
-        2 => match run_file(&args[1]) {
-            Ok(_) => process::exit(0),
-            Err(err) => print_err(err)
-        } ,
+        2 => if let Err(e) = run(&args[1]) {
+            eprintln!("Application error: {e}");
+            process::exit(1); 
+        }
         _ => run_prompt(),
     };
 }
 
-fn print_err(err: Box<dyn Error>) {
-    println!("ERROR: \n{err}");
-    process::exit(1);
+fn error(line: i32, msg: &str) {
+    
 }
 
-fn run_file(path: &str) -> Result<(), Box<dyn Error>> {
+fn report(line: i32, at: &str, msg: &str) {
+    
+}
+
+fn run(path: &str) -> Result<(), Box<dyn Error>> {
     let input: String = fs::read_to_string(path)?;
     print!("{}", input);
     Ok(())

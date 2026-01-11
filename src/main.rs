@@ -1,6 +1,8 @@
 mod scanner;
+mod token;
 
 use scanner::Scanner;
+use token::{Token, TokenKind};
 use std::{
     env,
     error::Error,

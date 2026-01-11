@@ -23,45 +23,43 @@ fn main() {
                 process::exit(1);
             }
         }
-        _ => run_prompt(),
-    };
+        _ => {
+            if let Err(e) = run_prompt() {
+                eprintln!("Prompt error: {}", e);
+                process::exit(1);
+            }
+        }
+    }
 }
 
-fn run_prompt() {
+fn run_prompt() -> Result<(), Box<dyn Error>> {
     loop {
         print!("> ");
-        io::stdout().flush().unwrap();
+        io::stdout().flush()?;
 
         let mut stdin = String::new();
 
         let bytes_read = io::stdin()
-            .read_line(&mut stdin)
-            .expect("Failed to read line");
+            .read_line(&mut stdin)?;
 
         if bytes_read == 0 {
+            println!();
             break;
         }
 
-        run(&stdin);
+        run(&stdin)?
     }
+    Ok(())
 }
 
 fn run_file(path: &str) -> Result<(), Box<dyn Error>> {
     let input: String = fs::read_to_string(path)?;
-    run(&input);
-    Ok(())
+    run(&input)
 }
 
-fn run(source: &str) {
+fn run(source: &str) -> Result<(), Box<dyn Error>> {
     let scanner = Scanner::new(source);
-    let tokens = scanner.as_vec();
+    let tokens = scanner.scan_whitespace();
     tokens.iter().for_each(|t| println!("{t}"));
-}
-
-fn error(line: i32, msg: &str) {
-    report(line, "", msg);
-}
-
-fn report(line: i32, at: &str, msg: &str) {
-    eprintln!("[line {}] Error{}: {}", line, at, msg);
+    Ok(())
 }

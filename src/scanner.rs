@@ -5,7 +5,7 @@ impl Scanner {
         Self(source.into())
     }
 
-    pub fn as_vec(&self) -> Vec<&str> {
+    pub fn scan_whitespace(&self) -> Vec<&str> {
         self.0.split_whitespace().collect()
     }
 }

@@ -1,2 +1,4 @@
-// Your first Lox program!
-print "Hello, world!";
+// this is a comment
+(( )){} // grouping stuff
+!*+-/=<> <= == // operators
+

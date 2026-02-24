@@ -60,7 +60,7 @@ fn run_prompt() -> Result<(), Box<dyn Error>> {
 }
 
 fn run(source: &str) -> Result<(), String> {
-    let tokens = scanner::scan_whitespace(source);
+    let tokens = scanner::scan_tokens(source);
     tokens.iter().for_each(|t| println!("{t}"));
     Ok(())
 }

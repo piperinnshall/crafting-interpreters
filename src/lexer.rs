@@ -17,6 +17,14 @@ impl Lexer {
         }
     }
 
+    pub fn advance_start(&mut self) {
+        self.start = self.current
+    }
+
+    pub fn advance_line(&mut self) {
+        self.line += 1
+    }
+
     pub fn peek(&self) -> Option<char> {
         self.source[self.current as usize..].chars().next()
     }
@@ -55,5 +63,9 @@ impl Lexer {
             }
             Some(_) | None => false,
         }
+    }
+
+    pub fn tokens(&self) -> Vec<Token> {
+        self.tokens.clone()
     }
 }

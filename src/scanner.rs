@@ -1,12 +1,9 @@
-use crate::token::TokenKind;
 use crate::lexer::Lexer;
+use crate::token::{Token, TokenKind};
 
 type Tk = TokenKind;
 
 fn scan_token(lexer: &mut Lexer) -> Result<(), String> {
-    if lexer.peek().is_none() {
-        return Ok(());
-    }
 
     let c = lexer.pop().unwrap();
 
@@ -25,8 +22,10 @@ fn scan_token(lexer: &mut Lexer) -> Result<(), String> {
         '=' => lexer.push_optional('=', Tk::EqualEqual, Tk::Equal),
         '<' => lexer.push_optional('=', Tk::LessEqual, Tk::Less),
         '>' => lexer.push_optional('=', Tk::GreaterEqual, Tk::Greater),
+        '\n' => lexer.advance_line(),
         '/' => eat_comment(lexer),
 
+        ' ' | '\r' | '\t' => {}
         _ => return Err(format!("Unexpected Character: '{}'", c)),
     };
 
@@ -41,6 +40,23 @@ fn eat_comment(lexer: &mut Lexer) {
     } else {
         lexer.push(Tk::Slash);
     }
+}
+pub fn scan_tokens(source: impl Into<String>) -> Vec<String> {
+    let mut lexer = Lexer::from(source);
+    
+    while lexer.peek().is_some() {
+        lexer.advance_start();
+
+        if let Err(e) = scan_token(&mut lexer) {
+            eprintln!("Lexer error: {}", e);
+            break;
+        }
+    }
+
+    lexer.tokens()
+        .into_iter()
+        .map(|t| t.1)
+        .collect()
 }
 
 pub fn scan_whitespace(source: impl Into<String>) -> Vec<String> {

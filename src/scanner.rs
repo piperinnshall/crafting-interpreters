@@ -19,29 +19,52 @@ impl Lexer {
         }
     }
 
-    fn push(&mut self, token_kind: TokenKind) {
-        let text = &self.source[self.start as usize..self.current as usize];
-        let token = Token(token_kind, text.to_owned(), self.line as usize);
-        self.tokens.push(token)
-    }
-
     fn peek(&self) -> Option<char> {
         self.source[self.current as usize..].chars().next()
     }
+
 
     fn pop(&mut self) -> Option<char> {
         let c = self.peek()?;
         self.current += 1;
         Some(c)
     }
+
+    fn push(&mut self, token_kind: Tk) {
+        let text = &self.source[self.start as usize..self.current as usize];
+        let token = Token(token_kind, text.to_owned(), self.line as usize);
+        self.tokens.push(token)
+    }
+
+    fn push_optional(&mut self, expected: char, expected_token: Tk, current_token: Tk) { 
+        let token = if self.match_token(expected) {
+            expected_token
+        } else {
+            current_token
+        };
+        self.push(token)
+    }
+
+    fn match_token(&mut self, expected: char) -> bool {
+        match self.peek() {
+            Some(c) => {
+                if c != expected {
+                    return false;
+                }
+                self.pop();
+                true
+            }
+            None => false,
+        }
+    }
 }
 
 fn scan_token(lexer: &mut Lexer) -> Result<(), String> {
     if lexer.peek().is_none() {
-        return Ok(())
+        return Ok(());
     }
 
-    let c = lexer.pop().unwrap();
+    let c = &lexer.pop().unwrap();
 
     match c {
         '(' => lexer.push(Tk::LeftParen),
@@ -54,15 +77,16 @@ fn scan_token(lexer: &mut Lexer) -> Result<(), String> {
         '+' => lexer.push(Tk::Plus),
         ';' => lexer.push(Tk::Semicolon),
         '*' => lexer.push(Tk::Star),
+        '!' => lexer.push_optional('=', Tk::BangEqual, Tk::Bang),
+        '=' => lexer.push_optional('=', Tk::EqualEqual, Tk::Equal),
+        '<' => lexer.push_optional('=', Tk::LessEqual, Tk::Less),
+        '>' => lexer.push_optional('=', Tk::GreaterEqual, Tk::Greater),
 
-        _ => return Err(format!("Unexpected Character: '{}'",c))
+        _ => return Err(format!("Unexpected Character: '{}'", c)),
     };
 
     Ok(())
 }
-
-// fn match_token() -> bool {
-// }
 
 pub fn scan_whitespace(source: impl Into<String>) -> Vec<String> {
     source

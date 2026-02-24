@@ -1,4 +1,5 @@
 mod scanner;
+mod lexer;
 mod token;
 
 use std::{

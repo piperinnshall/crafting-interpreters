@@ -1,8 +1,6 @@
 mod scanner;
 mod token;
 
-use scanner::Scanner;
-use token::{Token, TokenKind};
 use std::{
     env,
     error::Error,
@@ -34,6 +32,12 @@ fn main() {
     }
 }
 
+fn run_file(path: &str) -> Result<(), Box<dyn Error>> {
+    let input: String = fs::read_to_string(path)?;
+    run(&input)?;
+    Ok(())
+}
+
 fn run_prompt() -> Result<(), Box<dyn Error>> {
     loop {
         print!("> ");
@@ -41,27 +45,21 @@ fn run_prompt() -> Result<(), Box<dyn Error>> {
 
         let mut stdin = String::new();
 
-        let bytes_read = io::stdin()
-            .read_line(&mut stdin)?;
+        let bytes_read = io::stdin().read_line(&mut stdin)?;
 
+        // Ctrl-D sends EOF token, should break out of loop.
         if bytes_read == 0 {
             println!();
             break;
         }
 
-        run(&stdin)?
+        run(&stdin)?;
     }
     Ok(())
 }
 
-fn run_file(path: &str) -> Result<(), Box<dyn Error>> {
-    let input: String = fs::read_to_string(path)?;
-    run(&input)
-}
-
-fn run(source: &str) -> Result<(), Box<dyn Error>> {
-    let scanner = Scanner::new(source);
-    let tokens = scanner.scan_whitespace();
+fn run(source: &str) -> Result<(), String> {
+    let tokens = scanner::scan_whitespace(source);
     tokens.iter().for_each(|t| println!("{t}"));
     Ok(())
 }

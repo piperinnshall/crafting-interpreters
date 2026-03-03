@@ -42,7 +42,6 @@ impl Lexer {
         }
     }
 
-
     pub fn match_token(&mut self, expected: char) -> bool {
         match self.peek() {
             Some(c) if c == expected => {

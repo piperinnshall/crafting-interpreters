@@ -37,7 +37,8 @@ fn scan_token(lexer: &mut Lexer) -> Result<(), String> {
         '>' => lexer.push_optional('=', Tk::GreaterEqual, Tk::Greater),
         '/' => eat_comment(lexer),
         '"' => scan_string(lexer)?,
-        _ if c.is_ascii_digit() => scan_string(lexer)?,
+        _ if c.is_ascii_digit() => scan_number(lexer),
+        _ if c.is_ascii_alphanumeric() => scan_identifier(lexer),
         _ => {
             return Err(format!(
                 "Unexpected Character: '{}' at line: '{}', character: '{}'",
@@ -50,6 +51,16 @@ fn scan_token(lexer: &mut Lexer) -> Result<(), String> {
     Ok(())
 }
 
+fn eat_comment(lexer: &mut Lexer) {
+    if lexer.match_token('/') {
+        while matches!(lexer.peek(), Some(c) if c != '\n') {
+            lexer.pop();
+        }
+    } else {
+        lexer.push(Tk::Slash);
+    }
+}
+
 fn scan_string(lexer: &mut Lexer) -> Result<(), String> {
     let char = lexer.char();
     let line = lexer.line();
@@ -58,8 +69,8 @@ fn scan_string(lexer: &mut Lexer) -> Result<(), String> {
             '"' => {
                 lexer.pop();
                 let lexeme = lexer.lexeme();
-                let value = &lexeme[1..lexeme.len() - 1]; // Trim quotes
-                lexer.push(TokenKind::String(value.to_owned()));
+                let lexeme = &lexeme[1..lexeme.len() - 1]; // Trim quotes
+                lexer.push(TokenKind::String(lexeme.to_owned()));
                 return Ok(());
             }
             '\n' => {
@@ -87,12 +98,8 @@ fn scan_number(lexer: &mut Lexer) {
     lexer.push(Tk::Number(lexer.lexeme().parse().unwrap()));
 }
 
-fn eat_comment(lexer: &mut Lexer) {
-    if lexer.match_token('/') {
-        while matches!(lexer.peek(), Some(c) if c != '\n') {
-            lexer.pop();
-        }
-    } else {
-        lexer.push(Tk::Slash);
-    }
+
+fn scan_identifier(lexer: &mut Lexer) {
+    lexer.pop_while(|c| c.is_ascii_alphanumeric());
+    lexer.push(Tk::Identifier(lexer.lexeme().to_owned()))
 }

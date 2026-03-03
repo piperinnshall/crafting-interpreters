@@ -7,6 +7,7 @@ pub struct Lexer {
     start: i32,
     current: i32,
     line: i32,
+    char: i32,
 }
 
 impl Lexer {
@@ -21,8 +22,13 @@ impl Lexer {
         self.start = self.current
     }
 
+    pub fn advance_char(&mut self) {
+        self.char += 1
+    }
+
     pub fn advance_line(&mut self) {
-        self.line += 1
+        self.line += 1;
+        self.char = 0;
     }
 
     pub fn peek(&self) -> Option<char> {
@@ -32,6 +38,7 @@ impl Lexer {
     pub fn pop(&mut self) -> Option<char> {
         let c = self.peek()?;
         self.current += c.len_utf8() as i32;
+        self.advance_char();
         Some(c)
     }
 
@@ -55,14 +62,31 @@ impl Lexer {
         self.push(token)
     }
 
-    pub fn push_string(&mut self) {
+    pub fn push_string(&mut self) -> Result<(), String> {
+        let char = self.char;
+        let line = self.line;
         while let Some(c) = self.peek() {
             match c {
-                '"' => break,
-                '\n' => { self.advance_line(); self.advance_start(); }
-                _ => self.advance_start(),
+                '"' => {
+                    self.pop();
+                    let value = &self.source[self.start as usize + 1..self.current as usize - 1];
+                    self.push(TokenKind::String(value.to_owned()));
+                    return Ok(());
+                }
+                '\n' => {
+                    self.pop();
+                    self.advance_line();
+                }
+                _ => {
+                    self.pop();
+                }
             }
         }
+        Err(format!(
+            "Unterminated string: at line '{}', char '{}'",
+            line,
+            char - 1
+        ))
     }
 
     pub fn match_token(&mut self, expected: char) -> bool {
@@ -74,9 +98,9 @@ impl Lexer {
             Some(_) | None => false,
         }
     }
-    
+
     // Getter API
-    
+
     pub fn tokens(&self) -> Vec<Token> {
         self.tokens.clone()
     }
@@ -85,7 +109,7 @@ impl Lexer {
         self.line
     }
 
-    pub fn current(&self) -> i32 {
-        self.current
+    pub fn char(&self) -> i32 {
+        self.char
     }
 }

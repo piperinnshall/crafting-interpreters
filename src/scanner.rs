@@ -46,12 +46,20 @@ fn scan_token(lexer: &mut Lexer) -> Result<(), String> {
         '=' => lexer.push_optional('=', Tk::EqualEqual, Tk::Equal),
         '<' => lexer.push_optional('=', Tk::LessEqual, Tk::Less),
         '>' => lexer.push_optional('=', Tk::GreaterEqual, Tk::Greater),
-        // '"' => lexer.push_string(),
+        '"' => lexer.push_string()?,
         '\n' => lexer.advance_line(),
         '/' => eat_comment(lexer),
 
         ' ' | '\r' | '\t' => {}
-        _ => return Err(format!("Unexpected Character: '{}' at line: '{}', character: '{}'", c, lexer.line(), lexer.current())),
+
+        _ => {
+            return Err(format!(
+                "Unexpected Character: '{}' at line: '{}', character: '{}'",
+                c,
+                lexer.line(),
+                lexer.char() - 1
+            ))
+        }
     };
 
     Ok(())

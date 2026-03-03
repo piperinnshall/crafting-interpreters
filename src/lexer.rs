@@ -55,6 +55,16 @@ impl Lexer {
         self.push(token)
     }
 
+    pub fn push_string(&mut self) {
+        while let Some(c) = self.peek() {
+            match c {
+                '"' => break,
+                '\n' => { self.advance_line(); self.advance_start(); }
+                _ => self.advance_start(),
+            }
+        }
+    }
+
     pub fn match_token(&mut self, expected: char) -> bool {
         match self.peek() {
             Some(c) if c == expected => {
@@ -64,8 +74,18 @@ impl Lexer {
             Some(_) | None => false,
         }
     }
-
+    
+    // Getter API
+    
     pub fn tokens(&self) -> Vec<Token> {
         self.tokens.clone()
+    }
+
+    pub fn line(&self) -> i32 {
+        self.line
+    }
+
+    pub fn current(&self) -> i32 {
+        self.current
     }
 }

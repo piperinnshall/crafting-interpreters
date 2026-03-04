@@ -1,9 +1,9 @@
 use crate::lexer::Lexer;
-use crate::token::TokenKind;
+use crate::token::{Token, TokenKind};
 
 type Tk = TokenKind;
 
-pub fn scan_tokens(source: impl Into<String>) -> Vec<String> {
+pub fn scan_tokens(source: impl Into<String>) -> Vec<Token> {
     let mut lexer = Lexer::from(source);
     let mut errors = Vec::new();
     while lexer.peek().is_some() {
@@ -13,7 +13,7 @@ pub fn scan_tokens(source: impl Into<String>) -> Vec<String> {
         }
     }
     errors.iter().for_each(|e| println!("{}", e));
-    lexer.tokens().into_iter().map(|t| t.1).collect()
+    lexer.tokens()
 }
 
 fn scan_token(lexer: &mut Lexer) -> Result<(), String> {
@@ -43,8 +43,8 @@ fn scan_token(lexer: &mut Lexer) -> Result<(), String> {
             return Err(format!(
                 "Unexpected Character: '{}' at line: '{}', character: '{}'",
                 c,
-                lexer.line(),
-                lexer.char() - 1
+                lexer.start_line(),
+                lexer.start_char()
             ))
         }
     };
@@ -53,23 +53,19 @@ fn scan_token(lexer: &mut Lexer) -> Result<(), String> {
 
 fn eat_comment(lexer: &mut Lexer) {
     if lexer.match_token('/') {
-        while matches!(lexer.peek(), Some(c) if c != '\n') {
-            lexer.pop();
-        }
+        lexer.pop_while(|c| c != '\n');
     } else {
         lexer.push(Tk::Slash);
     }
 }
 
 fn scan_string(lexer: &mut Lexer) -> Result<(), String> {
-    let char = lexer.char();
-    let line = lexer.line();
     while let Some(c) = lexer.peek() {
         match c {
             '"' => {
                 lexer.pop();
                 let lexeme = lexer.lexeme();
-                let lexeme = &lexeme[1..lexeme.len() - 1]; // Trim quotes
+                let lexeme = &lexeme[1..lexeme.len() - 1];
                 lexer.push(TokenKind::String(lexeme.to_owned()));
                 return Ok(());
             }
@@ -77,15 +73,13 @@ fn scan_string(lexer: &mut Lexer) -> Result<(), String> {
                 lexer.pop();
                 lexer.advance_line();
             }
-            _ => {
-                lexer.pop();
-            }
+            _ => { lexer.pop(); }
         }
     }
     Err(format!(
         "Unterminated string: at line '{}', char '{}'",
-        line,
-        char - 1
+        lexer.start_line(),
+        lexer.start_char()
     ))
 }
 
@@ -100,6 +94,25 @@ fn scan_number(lexer: &mut Lexer) {
 
 
 fn scan_identifier(lexer: &mut Lexer) {
-    lexer.pop_while(|c| c.is_ascii_alphanumeric());
-    lexer.push(Tk::Identifier(lexer.lexeme().to_owned()))
+    lexer.pop_while(|c| c.is_ascii_alphanumeric() || c == '_');
+    let token = match lexer.lexeme() {
+        "and" => Tk::And,
+        "class" => Tk::Class,
+        "else" => Tk::Else,
+        "false" => Tk::False,
+        "fun" => Tk::Fun,
+        "for" => Tk::For,
+        "if" => Tk::If,
+        "nil" => Tk::Nil,
+        "or" => Tk::Or,
+        "print" => Tk::Print,
+        "return" => Tk::Return,
+        "super" => Tk::Super,
+        "this" => Tk::This,
+        "true" => Tk::True,
+        "var" => Tk::Var,
+        "while" => Tk::While,
+        _ => Tk::Identifier(lexer.lexeme().to_owned()),
+    };
+    lexer.push(token);
 }

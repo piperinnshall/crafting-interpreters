@@ -1,9 +1,43 @@
-// this is a comment
-"hi
-this is a 
-multi liner"
-(( )){} // grouping stuff
-!*+-/=<> <= == // operators
-12324 "this is a number"
-he llo
- "world
+// Single character tokens
+( ) { } , . - + ; * /
+
+// Comparison operators  
+! != = == < <= > >=
+
+// String literals
+"hello world"
+"multi
+line
+string"
+
+// Number literals
+42
+3.14
+0.5
+
+// Keywords
+and or if else while for
+var fun return
+class this super
+true false nil
+print
+
+// Identifiers
+foo bar_baz _private camelCase
+
+// Mixed expressions
+var x = 10;
+var y = 3.14;
+var name = "lox";
+if (x == 10) {
+    print x + y;
+}
+fun add(a, b) {
+    return a + b;
+}
+class Animal {
+    this.name = "cat";
+}
+
+// Unterminated string (should error)
+"oops

@@ -5,9 +5,11 @@ pub struct Lexer {
     source: String,
     start: i32,
     current: i32,
-    tokens: Vec<Token>,
     line: i32,
     char: i32,
+    start_line: i32,
+    start_char: i32,
+    tokens: Vec<Token>,
 }
 
 impl Lexer {
@@ -21,7 +23,9 @@ impl Lexer {
     // mutation
 
     pub fn advance_start(&mut self) {
-        self.start = self.current
+        self.start = self.current;
+        self.start_line = self.line;
+        self.start_char = self.char;
     }
 
     pub fn advance_line(&mut self) {
@@ -53,8 +57,7 @@ impl Lexer {
     }
 
     pub fn push(&mut self, token_kind: TokenKind) {
-        let text = self.lexeme();
-        let token = Token(token_kind, text.to_owned(), self.line as usize);
+        let token = Token(token_kind, self.start_line as usize, self.start_char as usize);
         self.tokens.push(token)
     }
 
@@ -85,15 +88,16 @@ impl Lexer {
         &self.source[self.start as usize..self.current as usize]
     }
 
+    pub fn start_line(&self) -> i32 {
+        self.start_line
+    }
+
+    pub fn start_char(&self) -> i32 {
+        self.start_char
+    }
+
     pub fn tokens(&self) -> Vec<Token> {
         self.tokens.clone()
     }
 
-    pub fn line(&self) -> i32 {
-        self.line
-    }
-
-    pub fn char(&self) -> i32 {
-        self.char
-    }
 }

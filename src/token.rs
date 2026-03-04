@@ -1,11 +1,11 @@
 use std::fmt::Display;
 
 #[derive(Debug, Clone)]
-pub struct Token(pub TokenKind, pub String, pub usize);
+pub struct Token(pub TokenKind, pub usize, pub usize);
 
 impl Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "TokenKind: {}, lexeme: {}, line: {}", self.0, self.1, self.2)
+        write!(f, "kind: {}, line: {}, char: {}", self.0, self.1, self.2)
     }
 }
 

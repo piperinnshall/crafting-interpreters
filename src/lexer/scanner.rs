@@ -66,7 +66,7 @@ fn scan_string(lexer: &mut Lexer) -> Result<(), String> {
                 lexer.pop();
                 let lexeme = lexer.lexeme();
                 let lexeme = &lexeme[1..lexeme.len() - 1];
-                lexer.push(TokenKind::String(lexeme.to_owned()));
+                lexer.push(TokenKind::Str(lexeme.to_owned()));
                 return Ok(());
             }
             '\n' => {

@@ -13,7 +13,7 @@ impl Display for Token {
 #[derive(Debug, Clone)]
 pub enum TokenKind {
     // literals.
-    Identifier(String), String(String), Number(f64),
+    Identifier(String), Str(String), Number(f64),
 
     // Single-character tokens.
     LeftParen, RightParen, LeftBrace, RightBrace,
@@ -36,7 +36,7 @@ impl Display for TokenKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             TokenKind::Identifier(s) => write!(f, "Identifier({})", s),
-            TokenKind::String(s) => write!(f, "String({})", s),
+            TokenKind::Str(s) => write!(f, "String({})", s),
             TokenKind::Number(n) => write!(f, "Number({})", n),
             _ => write!(f, "{:?}", self),
         }

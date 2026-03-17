@@ -1,14 +1,13 @@
 mod lexer;
 mod tree;
 
+use crate::lexer::{scanner, token};
+use crate::tree::expr::{Expr, Literal};
 use std::{
-    env,
-    fs,
+    env, fs,
     io::{self, Write},
     process,
 };
-use crate::lexer::{token,scanner};
-
 
 fn main() {
     let args: Vec<String> = env::args().collect();

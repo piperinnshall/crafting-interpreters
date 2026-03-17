@@ -1,6 +1,5 @@
-mod scanner;
 mod lexer;
-mod token;
+mod tree;
 
 use std::{
     env,
@@ -8,6 +7,7 @@ use std::{
     io::{self, Write},
     process,
 };
+use crate::lexer::{token,scanner};
 
 
 fn main() {

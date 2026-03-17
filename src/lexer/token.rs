@@ -26,7 +26,7 @@ pub enum TokenKind {
     Less, LessEqual,
 
     // keywords.
-    And, Class, Else, False, Fun, For, If, Nil, Or,
+    And, Class, Else, False, Function, For, If, Nil, Or,
     Print, Return, Super, This, True, Var, While,
 
     Eof,

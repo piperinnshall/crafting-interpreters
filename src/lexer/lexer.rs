@@ -1,4 +1,4 @@
-use crate::token::{Token, TokenKind};
+use crate::lexer::token::{Token, TokenKind};
 
 #[derive(Default, Clone)]
 pub struct Lexer {
@@ -57,7 +57,11 @@ impl Lexer {
     }
 
     pub fn push(&mut self, token_kind: TokenKind) {
-        let token = Token(token_kind, self.start_line as usize, self.start_char as usize);
+        let token = Token(
+            token_kind,
+            self.start_line as usize,
+            self.start_char as usize,
+        );
         self.tokens.push(token)
     }
 
@@ -84,6 +88,7 @@ impl Lexer {
     pub fn peek_next(&self) -> Option<char> {
         self.source[self.current as usize..].chars().nth(1)
     }
+
     pub fn lexeme(&self) -> &str {
         &self.source[self.start as usize..self.current as usize]
     }
@@ -99,5 +104,4 @@ impl Lexer {
     pub fn tokens(&self) -> Vec<Token> {
         self.tokens.clone()
     }
-
 }

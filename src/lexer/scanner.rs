@@ -1,5 +1,5 @@
-use crate::lexer::Lexer;
-use crate::token::{Token, TokenKind};
+use crate::lexer::lexer::Lexer;
+use crate::lexer::token::{Token, TokenKind};
 
 type Tk = TokenKind;
 
@@ -100,7 +100,7 @@ fn scan_identifier(lexer: &mut Lexer) {
         "class" => Tk::Class,
         "else" => Tk::Else,
         "false" => Tk::False,
-        "fun" => Tk::Fun,
+        "fn" => Tk::Function,
         "for" => Tk::For,
         "if" => Tk::If,
         "nil" => Tk::Nil,

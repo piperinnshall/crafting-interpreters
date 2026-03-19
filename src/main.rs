@@ -1,8 +1,8 @@
 mod lexer;
-mod tree;
+mod parser;
 
-use crate::lexer::{scanner, token};
-use crate::tree::expr::{Expr, Literal};
+use crate::lexer::{scanner, token::{Token, TokenKind}};
+use crate::parser::expr::{Expr, Literal};
 use std::{
     env, fs,
     io::{self, Write},
@@ -34,7 +34,7 @@ fn main() {
 fn run_file(path: &str) -> io::Result<()> {
     let input = fs::read_to_string(path)?;
     let mut tokens = scanner::scan_tokens(&input);
-    tokens.push(token::Token(token::TokenKind::Eof, 0, 0));
+    tokens.push(Token(TokenKind::Eof, 0, 0));
     debug_tokens(&tokens);
     Ok(())
 }
@@ -55,6 +55,6 @@ fn run_prompt() -> io::Result<()> {
     Ok(())
 }
 
-fn debug_tokens(tokens: &[token::Token]) {
+fn debug_tokens(tokens: &[Token]) {
     tokens.iter().for_each(|t| println!("{}", t));
 }

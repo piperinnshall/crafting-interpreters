@@ -10,7 +10,7 @@ impl Display for Token {
 }
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum TokenKind {
     // literals.
     Identifier(String), Str(String), Number(f64),

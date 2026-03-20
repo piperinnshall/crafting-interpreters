@@ -20,8 +20,6 @@ impl Lexer {
         }
     }
 
-    // mutation
-
     pub fn advance_start(&mut self) {
         self.start = self.current;
         self.start_line = self.line;
@@ -78,8 +76,6 @@ impl Lexer {
         };
         self.push(token)
     }
-
-    // inspection
 
     pub fn peek(&self) -> Option<char> {
         self.source[self.current as usize..].chars().next()

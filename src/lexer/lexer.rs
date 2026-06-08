@@ -3,8 +3,8 @@ use crate::lexer::token::{Token, TokenKind};
 #[derive(Default, Clone)]
 pub struct Lexer {
     source: String,
-    start: i32,
-    current: i32,
+    start: usize,
+    current: usize,
     line: i32,
     char: i32,
     start_line: i32,
@@ -33,7 +33,7 @@ impl Lexer {
 
     pub fn pop(&mut self) -> Option<char> {
         let c = self.peek()?;
-        self.current += c.len_utf8() as i32;
+        self.current += c.len_utf8();
         self.char += 1;
         Some(c)
     }
@@ -78,15 +78,15 @@ impl Lexer {
     }
 
     pub fn peek(&self) -> Option<char> {
-        self.source[self.current as usize..].chars().next()
+        self.source[self.current..].chars().next()
     }
 
     pub fn peek_next(&self) -> Option<char> {
-        self.source[self.current as usize..].chars().nth(1)
+        self.source[self.current..].chars().nth(1)
     }
 
     pub fn lexeme(&self) -> &str {
-        &self.source[self.start as usize..self.current as usize]
+        &self.source[self.start..self.current]
     }
 
     pub fn start_line(&self) -> i32 {

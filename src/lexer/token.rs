@@ -29,7 +29,7 @@ pub enum TokenKind {
     And, Class, Else, False, Function, For, If, Nil, Or,
     Print, Return, Super, This, True, Var, While,
 
-    Eof,
+    Ws, Eof,
 }
 
 impl Display for TokenKind {

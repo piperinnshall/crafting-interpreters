@@ -19,7 +19,8 @@ pub fn scan_tokens(source: impl Into<String>) -> Vec<Token> {
 fn scan_token(lexer: &mut Lexer) -> Result<(), String> {
     let c = lexer.pop().unwrap();
     match c {
-        ' ' | '\r' | '\t' => {}
+        '\r' | '\t' => {}
+        ' ' => lexer.push(Tk::Ws),
         '\n' => lexer.advance_line(),
         '(' => lexer.push(Tk::LeftParen),
         ')' => lexer.push(Tk::RightParen),
@@ -39,16 +40,34 @@ fn scan_token(lexer: &mut Lexer) -> Result<(), String> {
         '"' => scan_string(lexer)?,
         _ if c.is_ascii_digit() => scan_number(lexer),
         _ if c.is_ascii_alphanumeric() => scan_identifier(lexer),
-        _ => {
-            return Err(format!(
-                "Unexpected Character: '{}' at line: '{}', character: '{}'",
-                c,
-                lexer.start_line(),
-                lexer.start_char()
-            ))
-        }
+        _ => unexpected(c, &lexer)?,
+     
     };
     Ok(())
+}
+
+fn scan_identifier(lexer: &mut Lexer) {
+    lexer.pop_while(|c| c.is_ascii_alphanumeric() || c == '_');
+    let token = match lexer.lexeme() {
+        "and" => Tk::And,
+        "class" => Tk::Class,
+        "else" => Tk::Else,
+        "false" => Tk::False,
+        "fn" => Tk::Function,
+        "for" => Tk::For,
+        "if" => Tk::If,
+        "nil" => Tk::Nil,
+        "or" => Tk::Or,
+        "print" => Tk::Print,
+        "return" => Tk::Return,
+        "super" => Tk::Super,
+        "this" => Tk::This,
+        "true" => Tk::True,
+        "var" => Tk::Var,
+        "while" => Tk::While,
+        _ => Tk::Identifier(lexer.lexeme().to_owned()),
+    };
+    lexer.push(token);
 }
 
 fn eat_comment(lexer: &mut Lexer) {
@@ -92,27 +111,12 @@ fn scan_number(lexer: &mut Lexer) {
     lexer.push(Tk::Number(lexer.lexeme().parse().unwrap()));
 }
 
-
-fn scan_identifier(lexer: &mut Lexer) {
-    lexer.pop_while(|c| c.is_ascii_alphanumeric() || c == '_');
-    let token = match lexer.lexeme() {
-        "and" => Tk::And,
-        "class" => Tk::Class,
-        "else" => Tk::Else,
-        "false" => Tk::False,
-        "fn" => Tk::Function,
-        "for" => Tk::For,
-        "if" => Tk::If,
-        "nil" => Tk::Nil,
-        "or" => Tk::Or,
-        "print" => Tk::Print,
-        "return" => Tk::Return,
-        "super" => Tk::Super,
-        "this" => Tk::This,
-        "true" => Tk::True,
-        "var" => Tk::Var,
-        "while" => Tk::While,
-        _ => Tk::Identifier(lexer.lexeme().to_owned()),
-    };
-    lexer.push(token);
+fn unexpected(c: char, lexer: &Lexer) -> Result<(), String> {
+    Err(format!(
+        "Unexpected Character: '{}' at line: '{}', character: '{}'",
+        c,
+        lexer.start_line(),
+        lexer.start_char()
+    ))
 }
+
